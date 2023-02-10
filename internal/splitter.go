@@ -84,10 +84,16 @@ func (s *Splitter) writeFile(file string, objects []*unstructured.Unstructured) 
 	defer fl.Close()
 
 	var jsonBytes []byte
-	var yamlBytes []byte
 	var err error
 	var tmp map[string]any
 
+	var buf bytes.Buffer
+	encoder := yaml.NewEncoder(&buf)
+	encoder.SetIndent(2)
+
+	if _, err := fl.Write([]byte("---\n")); err != nil {
+		return fmt.Errorf("error during write: %w", err)
+	}
 	for _, obj := range objects {
 		jsonBytes, err = obj.MarshalJSON()
 		if err != nil {
@@ -99,17 +105,15 @@ func (s *Splitter) writeFile(file string, objects []*unstructured.Unstructured) 
 			return fmt.Errorf("error parsing %v as yaml: %w", obj.GetName(), err)
 		}
 
-		yamlBytes, err = yaml.Marshal(tmp)
+		err = encoder.Encode(tmp)
 		if err != nil {
 			return fmt.Errorf("error converting to %v to yaml: %w", obj.GetName(), err)
 		}
 
-		if _, err := fl.Write([]byte("---\n")); err != nil {
+		if _, err := fl.Write(buf.Bytes()); err != nil {
 			return fmt.Errorf("error during write: %w", err)
 		}
-		if _, err := fl.Write(yamlBytes); err != nil {
-			return fmt.Errorf("error during write: %w", err)
-		}
+		buf.Reset()
 	}
 
 	return nil
