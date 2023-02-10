@@ -8,15 +8,7 @@ import (
 	"strings"
 
 	"github.com/fluxcd/pkg/ssa"
-	//"github.com/samber/lo"
-	//metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	//"k8s.io/client-go/discovery"
-	//"k8s.io/client-go/discovery/cached/memory"
-	//"k8s.io/client-go/restmapper"
-	//"k8s.io/client-go/tools/clientcmd"
-	//"sigs.k8s.io/cli-utils/pkg/kstatus/polling"
-	//"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 var combinedKinds = map[string]string{

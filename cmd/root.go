@@ -11,7 +11,7 @@ import (
 
 func Root() *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:   "ksplit",
+		Use:   "ksplit <file>",
 		Short: "Split single-file sets of manifests into multiple files",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			// So we don't print usage messages on execution errors
