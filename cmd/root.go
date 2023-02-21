@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"io/ioutil"
 
 	"github.com/nicjohnson145/ksplit/config"
 	"github.com/nicjohnson145/ksplit/internal"
@@ -22,12 +23,18 @@ func Root() *cobra.Command {
 		},
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fl, err := os.ReadFile(args[0])
+			var flBytes []byte
+			var err error
+			if args[0] == "-" {
+				flBytes, err = ioutil.ReadAll(os.Stdin)
+			} else {
+				flBytes, err = os.ReadFile(args[0])
+			}
 			if err != nil {
 				return fmt.Errorf("error reading input: %w", err)
 			}
 
-			split := internal.NewSplitter(fl)
+			split := internal.NewSplitter(flBytes)
 			if err := split.Split(); err != nil {
 				return fmt.Errorf("error splitting: %w", err)
 			}
