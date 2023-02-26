@@ -6,6 +6,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"os"
 	"strings"
+	"path/filepath"
 
 	"github.com/fluxcd/pkg/ssa"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -32,6 +33,7 @@ func NewSplitter(file []byte) *Splitter {
 
 type Splitter struct {
 	file []byte
+	pathPrefix string
 }
 
 func (s *Splitter) Split() error {
@@ -69,7 +71,8 @@ func (s *Splitter) toObjects() ([]*unstructured.Unstructured, error) {
 }
 
 func (s *Splitter) writeFile(file string, objects []*unstructured.Unstructured) error {
-	fl, openErr := os.Create(file)
+	path := filepath.Join(s.pathPrefix, file)
+	fl, openErr := os.Create(path)
 	if openErr != nil {
 		return openErr
 	}
@@ -77,7 +80,6 @@ func (s *Splitter) writeFile(file string, objects []*unstructured.Unstructured) 
 
 	var jsonBytes []byte
 	var err error
-	var tmp map[string]any
 
 	var buf bytes.Buffer
 	encoder := yaml.NewEncoder(&buf)
@@ -92,6 +94,7 @@ func (s *Splitter) writeFile(file string, objects []*unstructured.Unstructured) 
 			return fmt.Errorf("error marshalling %v: %w", obj.GetName(), err)
 		}
 
+		var tmp map[string]any
 		err = yaml.Unmarshal(jsonBytes, &tmp)
 		if err != nil {
 			return fmt.Errorf("error parsing %v as yaml: %w", obj.GetName(), err)
